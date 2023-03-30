@@ -8,6 +8,34 @@ public class TodoList{
     static int option;
     static String title;
     
+    static void fillFavArray()
+    {
+        for(int i = 0; i < allItems.size(); i++)
+        {
+            if(allItems.get(i).getFavorite()== true)
+            {
+                favorites.add(allItems.get(i));
+            }
+        }
+    }
+    
+    static void printOptions()
+    {
+        System.out.println("Choose one of the following features or -1 to terminate: ");
+        System.out.println("1- Add item");
+        System.out.println("2- Update item");
+        System.out.println("3- Delete item");
+        System.out.println("4- Show all items");
+        System.out.println("5- Show top 5 nearest by date");
+        System.out.println("6- Search by title");
+        System.out.println("7- Search by start date");
+        System.out.println("8- Search by end date");
+        System.out.println("9- Search by end priority");
+        System.out.println("10- Add item to a category");
+        System.out.println("11- Add item to a favorites list");
+        System.out.println("12- Remove item from favorites list");
+        System.out.println("13- Show favorites list");
+    }
     
     static boolean checkTimeInterval(String st, String end)
     {
@@ -67,6 +95,12 @@ public class TodoList{
         String start = sc.next();
         System.out.println("Enter the item end date in the MM-DD-YYYY format:");
         String end = sc.next();
+        while(!checkTimeInterval(start, end))
+        {
+            System.out.println("Invalid end date");
+            System.out.println("Enter the item end date in the MM-DD-YYYY format:");
+            end = sc.next();
+        }
         TodoItem i = new TodoItem(title, desc, p, cat, start, end);
         allItems.add(i);
     }
@@ -193,37 +227,14 @@ public class TodoList{
         throw new ItemNotFound();
     }
     
-    static void printOptions()
-    {
-        System.out.println("Choose one of the following features or -1 to terminate: ");
-        System.out.println("1- Add item");
-        System.out.println("2- Update item");
-        System.out.println("3- Delete item");
-        System.out.println("4- Show all items");
-        System.out.println("5- Show top 5 nearest by date");
-        System.out.println("6- Search by title");
-        System.out.println("7- Search by start date");
-        System.out.println("8- Search by end date");
-        System.out.println("9- Search by end priority");
-        System.out.println("10- Add item to a category");
-        System.out.println("11- Add item to a favorites list");
-        System.out.println("12- Remove item from favorites list");
-        System.out.println("13- Show favorites list");
-    }
+    
     
     public static void main(String []args)
     {
         Scanner s = new Scanner(System.in);
         
         // Filling favorites list
-        for(int i = 0; i < allItems.size(); i++)
-        {
-            if(allItems.get(i).getFavorite()== true)
-            {
-                favorites.add(allItems.get(i));
-            }
-        }
-        
+        fillFavArray();
         
         /**/
         ArrayList<String> favorites2 = new ArrayList<>();
@@ -231,8 +242,6 @@ public class TodoList{
         TodoItem i1 = new TodoItem("item1", "i1 desc", 2, favorites2, "2-2-2022", "6-6-2022");
         allItems.add(i1);
         /**/
-        
-        
         
         while(true)
         {
@@ -245,7 +254,7 @@ public class TodoList{
             {
                 System.exit(0);
             }
-            while(option < 1 || option > 12)
+            while(option < 1 || option > 13)
             {
                 System.out.println("Invalid input, please enter another number");
                 option = s.nextInt();
@@ -283,7 +292,7 @@ public class TodoList{
                             }
                             else
                             {
-                                System.out.println("No such field");
+                                System.out.println("No such field!!");
                             }
                             
                         } catch (ItemNotFound e) {
