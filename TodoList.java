@@ -5,7 +5,7 @@ public class TodoList{
     public static void main(String []args)
     {
         Scanner s = new Scanner(System.in);
-        ArrayList <TodoItem> allItems = new TodoItem <>();
+        ArrayList<TodoItem> allItems = new ArrayList<TodoItem>();
         
         System.out.Println("Choose one of the following features:");
         System.out.Println("1- Add item");
