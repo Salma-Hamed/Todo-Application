@@ -22,26 +22,36 @@ public class TodoItem{
         favorite = false;
     }
 
-    public void updateItem(String t, String desc, int p, ArrayList cat, String st, String e) throws ItemNotFound
+    public boolean updateItem(String field, String newValue) throws ItemNotFound
     {
-        if(title == t)
+        switch(field)
         {
-            description = desc;
-            priority = p;
-            category = cat;
-            start = st;
-            end =  e;
+            case "description":
+                description = newValue;
+                break;
+            case "priority":
+                priority = Integer.parseInt(newValue);
+                break;
+            case "category":
+                category.removeAll(category);
+                category.add(newValue);
+                break;
+            case "start":
+                start = newValue;
+                break;
+            case "end":
+                end = newValue;
+                break;
+            default:
+                return false;
         }
-        else
-        {
-            throw new ItemNotFound();
-        }
+        return true;
     }
+    
     public void addCat(String cat)
     {
         category.add(cat);
     }
-    
     
     public void setFavorite(boolean fav)
     {
@@ -52,22 +62,27 @@ public class TodoItem{
     {
         return title;
     }
+    
     public String getStartDate()
     {
         return start;
     }
+    
     public String getEndDate()
     {
         return end;
     }
+    
     public int getPriority()
     {
         return priority;
     }
+    
     public boolean getFavorite()
     {
         return favorite;
     }
+    
     public void showItem()
     {
         System.out.println("Title: " + title);
