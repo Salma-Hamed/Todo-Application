@@ -38,5 +38,27 @@ public class TodoItem{
     {
         category.add(cat);
     }
+    
+    public String getTitle()
+    {
+        return title;
+    }
+    public String getStartDate()
+    {
+        return start;
+    }
+    public String getEndDate()
+    {
+        return end;
+    }
+    public void showItem()
+    {
+        System.out.println("Title: " + title);
+        System.out.println("Description: " + description);
+        System.out.println("Priority: " + priority);
+        System.out.println("Category: " + category);
+        System.out.println("Start Date: " + start);
+        System.out.println("End Date: " + end);
+    }
 
 }
