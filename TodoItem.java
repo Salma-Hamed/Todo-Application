@@ -19,7 +19,7 @@ public class TodoItem{
         end =  e;
     }
 
-    public void updateItem(String t, String desc, int p, ArrayList cat, String st, String e)
+    public void updateItem(String t, String desc, int p, ArrayList cat, String st, String e) throws ItemNotFound
     {
         if(title == t)
         {
