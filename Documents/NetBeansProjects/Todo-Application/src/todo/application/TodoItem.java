@@ -8,15 +8,17 @@ import java.util.Scanner;
 import todo.application.ItemNotFound;
 
 public class TodoItem {
+    private String id;
     private String title;
     private String description;
     private int priority;
-    private ArrayList category;
+    private String category;
     private String startDate;
     private String endDate;
 
-    public TodoItem(String title, String desc, int priority, ArrayList category, String startDate, String endDate)
+    public TodoItem(String id, String title, String desc, int priority, String category, String startDate, String endDate)
     {
+        this.id = id;
         this.title = title;
         this.description = desc;
         this.priority = priority;
@@ -25,12 +27,12 @@ public class TodoItem {
         this.endDate = endDate;
     }
 
-    public TodoItem(String title) {
-        this.title = title;
+    public TodoItem(String id) {
+        this.id = id;
     }
     
 
-    public void updateItem(File f,String title, String descr, int pri, ArrayList category, String startDate, String endDate)
+    public void updateItem(File f,String title, String descr, int pri, String category, String startDate, String endDate)
     {
         try {
             Scanner scanner = new Scanner(f);
@@ -53,12 +55,12 @@ public class TodoItem {
         }
         
     }
-    
-    public void addCat(String cat)
-    {
-        category.add(cat);
-    }
 
+    public String getId() {
+        return id;
+    }
+    
+    
     public String getTitle() {
         return title;
     }
@@ -83,11 +85,11 @@ public class TodoItem {
         this.priority = priority;
     }
 
-    public ArrayList getCategory() {
+    public String getCategory() {
         return category;
     }
 
-    public void setCategory(ArrayList category) {
+    public void setCategory(String category) {
         this.category = category;
     }
 

@@ -15,52 +15,47 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class TodoApplication {
+    public String i = "0";
     
-    public boolean addItem(Path p, TodoItem item){
-        try (InputStream in = Files.newInputStream(p);
-        BufferedReader reader =
-          new BufferedReader(new InputStreamReader(in))) {
-        String line = null;
-        // read file first and check if item exists
-        while ((line = reader.readLine()) != null) {
-            String fileTitle = line.substring(0, 3);
-            String itemTitle = item.getTitle();
-            if(fileTitle.equals(itemTitle)){
-                System.out.println("Item Found and cannot be repeated");
-                return false;
-            }
+    public void displayItems(ArrayList arr){
+        System.out.println("ID,  Title,    Description,    Priority, Categories,  StartDate,  EndDate");
+        for(int i=0; i<arr.size(); ++i){
+            //showitem();
         }
-        /// if not found then write it
-        try (OutputStream out = new BufferedOutputStream(
-        Files.newOutputStream(p, CREATE, APPEND))) {
-            String data = item.getTitle() + "," + item.getDescription() + ", [ ";
-            ArrayList<String> category = item.getCategory();
-            data += category.get(0);
-            for(int i=1; i<category.size(); ++i){
-                data += ", ";
-                data += category.get(i);
-            }
-            data += " ] , " + String.valueOf(item.getPriority()) +", " +item.getStartDate()+", " +item.getEndDate();
-            
-        out.write(data.getBytes(), 0, data.length());
-        
-        } catch (IOException x) {
-        System.err.println(x);
-        }
-    } catch (IOException x) {
-        System.err.println(x);
     }
-        return true;
+    
+    public void addItemsToFile(Path p, ArrayList<TodoItem> items){
+        /*String newStr = p.toString().substring(0, p.toString().length()-4) ;
+        newStr += String.valueOf(i);
+        Path newPath = Paths.get(newStr);
+        */
+        String data = "";
+        boolean exists = false;
+            
+            try (OutputStream out = new BufferedOutputStream(
+            Files.newOutputStream(p, CREATE, APPEND))) {
+            for(int i=0; i<items.size(); ++i){
+                data += items.get(i).getTitle() + ",    " + items.get(i).getDescription() + ", " + 
+                            items.get(i).getCategory() +",   " + String.valueOf(items.get(i).getPriority()) +",   " + 
+                            items.get(i).getStartDate()+",   " +items.get(i).getEndDate();
+                    data += "\n";
+            }
+            out.write(data.getBytes(), 0, data.length());
+
+            } catch (IOException x) {
+            System.err.println(x);
+            }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         
         TodoApplication app = new TodoApplication();
-        Path file = Paths.get("./items.txt");;
+        Path file = Paths.get("./items.txt");
         try {
             Files.createFile(file);
         } catch (FileAlreadyExistsException x) {
@@ -87,40 +82,64 @@ public class TodoApplication {
         System.out.println("10- Add item to a favorite");
 
         String s = sc.next();
+        int newId;
         
         while(!s.equals("-1")){
             switch (s){
                 case "-1":
                     break;
                 case "1":
-                    //String newTitle;
+                    TodoItem item = new TodoItem(app.i);
+                    newId = Integer.parseInt(app.i);
+                    newId++;
+                    app.i = Integer.toString(newId);
                     System.out.println("Type title: " );
-                    TodoItem item = new TodoItem(sc.next());
+                    item.setTitle(sc.next());
                     System.out.println("Type description: ");
-                    sc.next();
-                    item.setDescription(sc.nextLine());
+                    s = sc.next();
+                    item.setDescription(s + sc.nextLine());
                     System.out.println("Type priority in numbers: ");
-                    //sc.next();
                     item.setPriority(sc.nextInt());
                     System.out.println("Type category: ");
-                    ArrayList<String> arr = new ArrayList<>();
-                    arr.add(sc.next());
-                    item.setCategory(arr);
+                    item.setCategory(sc.next());
                     System.out.println("Type start date in this format MM-DD-YYYY: ");
                     item.setStartDate(sc.next());
                     System.out.println("Type end date in this format MM-DD-YYYY: ");
                     item.setEndDate(sc.next());
                     
-                    //allItems.add(item);
-                    app.addItem(file, item);
+                    allItems.add(item);
+                    
                     break;
                 case "2":
+                    System.out.println();
+                    app.displayItems(allItems);
+                    System.out.print("Note you will have to update the whole item \n"
+                            + "choose the number of the item you want to update: ");
+                    int updatedItemIndex = sc.nextInt();
+                    TodoItem updatedItem = allItems.get(updatedItemIndex);
                     
+                    System.out.println("Type title: " );
+                    updatedItem.setTitle(sc.next());
+                    System.out.println("Type description: ");
+                    sc.next();
+                    updatedItem.setDescription(sc.nextLine());
+                    System.out.println("Type priority in numbers: ");
+                    updatedItem.setPriority(sc.nextInt());
+                    System.out.println("Type category: ");
+                    updatedItem.setCategory(sc.next());
+                    System.out.println("Type start date in this format MM-DD-YYYY: ");
+                    updatedItem.setStartDate(sc.next());
+                    System.out.println("Type end date in this format MM-DD-YYYY: ");
+                    updatedItem.setEndDate(sc.next());
+                    
+                    //allItems.remove(updatedItemIndex-1);
+                    //allItems.add(updatedItem);
                     break;
                 case "3":
                     
                     break;
                 case "4":
+                    app.displayItems(allItems);
                     
                     break;
                 case "5":
@@ -143,21 +162,30 @@ public class TodoApplication {
                     break;
                         
             }
+            app.addItemsToFile(file, allItems);
             
-            System.out.println("Choose one of the following features:");
-            System.out.println("if you want to exit anytime Type -1");
-            System.out.println("1- Add item");
-            System.out.println("2- Update item");
-            System.out.println("3- Delete item");
-            System.out.println("4- Show all items");
-            System.out.println("5- Show top 5 nearest by date");
-            System.out.println("6- Search by title");
-            System.out.println("7- Search by start date");
-            System.out.println("8- Search by end date");
-            System.out.println("9- Add item to a category");
-            System.out.println("10- Add item to a favorite");
-            s = sc.next();
+            System.out.println();
+            System.out.println("to continue type yes, to exit type anything");
+            if(sc.next().equals("yes")){
+                System.out.println("Choose one of the following features:");
+                System.out.println("if you want to exit anytime Type -1");
+                System.out.println("1- Add item");
+                System.out.println("2- Update item");
+                System.out.println("3- Delete item");
+                System.out.println("4- Show all items");
+                System.out.println("5- Show top 5 nearest by date");
+                System.out.println("6- Search by title");
+                System.out.println("7- Search by start date");
+                System.out.println("8- Search by end date");
+                System.out.println("9- Add item to a category");
+                System.out.println("10- Add item to a favorite");
+                s = sc.next();
+                System.out.println();
+            }else
+                break;
+            
         }
+        
         System.out.println("Sorry to see you going! ");
 
 
