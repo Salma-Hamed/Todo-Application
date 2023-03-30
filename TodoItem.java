@@ -8,7 +8,9 @@ public class TodoItem{
     private ArrayList category;
     private String start;
     private String end;
+    private boolean favorite;
 
+   
     public TodoItem(String t, String desc, int p, ArrayList cat, String st, String e)
     {
         title = t;
@@ -17,6 +19,7 @@ public class TodoItem{
         category = cat;
         start = st;
         end =  e;
+        favorite = false;
     }
 
     public void updateItem(String t, String desc, int p, ArrayList cat, String st, String e) throws ItemNotFound
@@ -39,6 +42,12 @@ public class TodoItem{
         category.add(cat);
     }
     
+    
+    public void setFavorite(boolean fav)
+    {
+        favorite = fav;
+    }
+    
     public String getTitle()
     {
         return title;
@@ -50,6 +59,14 @@ public class TodoItem{
     public String getEndDate()
     {
         return end;
+    }
+    public int getPriority()
+    {
+        return priority;
+    }
+    public boolean getFavorite()
+    {
+        return favorite;
     }
     public void showItem()
     {
