@@ -4,6 +4,9 @@ import java.util.Scanner;
 public class TodoList{
     static ArrayList<TodoItem> allItems = new ArrayList<>();
     static ArrayList<TodoItem> favorites = new ArrayList<>();
+    static ArrayList<String> cat = new ArrayList<>();
+    static ArrayList<String> categories = new ArrayList<>();
+
     static boolean found;
     static int option;
     static String title;
@@ -83,14 +86,15 @@ public class TodoList{
     {
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter the item title:");
-        String title = sc.next();
+        String title = sc.nextLine();
         System.out.println("Enter the item description:");
-        String desc = sc.next();
+        String desc = sc.nextLine();
         System.out.println("Enter the item priority:");
         int p = sc.nextInt();
-        System.out.println("Enter the item category:");
-        ArrayList<String> cat = new ArrayList<>();
-        cat.add(sc.next());
+        System.out.println("Enter the item category:"+cat.toString());
+        String item=sc.next();
+        cat.add(item);
+        categories.add(item);
         System.out.println("Enter the item start date in the MM-DD-YYYY format:");
         String start = sc.next();
         System.out.println("Enter the item end date in the MM-DD-YYYY format:");
@@ -101,7 +105,7 @@ public class TodoList{
             System.out.println("Enter the item end date in the MM-DD-YYYY format:");
             end = sc.next();
         }
-        TodoItem i = new TodoItem(title, desc, p, cat, start, end);
+        TodoItem i = new TodoItem(title, desc, p, categories, start, end);
         allItems.add(i);
     }
     
@@ -226,6 +230,20 @@ public class TodoList{
         }
         throw new ItemNotFound();
     }
+    static void deleteItem(String title){
+        if(searchByTitle(title)!=-1){
+            int index=searchByTitle(title);
+            allItems.remove(index);
+
+        }else {
+            System.out.println("There is no item with this title!!");
+        }
+
+    }
+    static void addItemToCategory(String category){
+        cat.add(category);
+
+    }
     
     
     
@@ -307,6 +325,18 @@ public class TodoList{
 
                 // Delete item
                 case 3:
+                    System.out.println("Enter the title you want to delete");
+                    String t=s.next();
+                    System.out.println("Are you sure to delete this item press 1:Yes . 2:No ");
+                    int choice=s.nextInt();
+                    if(choice==1){
+                        deleteItem(t);
+                        System.out.println("Deleted Successfully");
+                    }
+                    else if (choice==2) {
+                        break;
+                    }
+
                     break;
 
                 // Show all items
@@ -356,6 +386,12 @@ public class TodoList{
                     
                 // Add item to a category
                 case 10:
+                    System.out.println("The Category we have");
+                    System.out.println(cat.toString());
+                    System.out.println("Write a category you want to add");
+                    String category=s.next();
+                    addItemToCategory(category);
+                    System.out.println("Category Added Successfully");
                     break;
                     
                 // Add item to a favorite
