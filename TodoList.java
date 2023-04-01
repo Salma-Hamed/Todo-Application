@@ -1,10 +1,9 @@
 package todo;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
+
 public class TodoList{
     static ArrayList<TodoItem> allItems = new ArrayList<>();
     static ArrayList<TodoItem> favorites = new ArrayList<>();
-    static ArrayList<String> cat = new ArrayList<>();
     static ArrayList<String> categories = new ArrayList<>();
 
     static boolean found;
@@ -38,6 +37,7 @@ public class TodoList{
         System.out.println("11- Add item to a favorites list");
         System.out.println("12- Remove item from favorites list");
         System.out.println("13- Show favorites list");
+        System.out.println("14- Show ToDo list based Category");
     }
     
     static boolean checkTimeInterval(String st, String end)
@@ -91,10 +91,16 @@ public class TodoList{
         String desc = sc.nextLine();
         System.out.println("Enter the item priority:");
         int p = sc.nextInt();
-        System.out.println("Enter the item category:"+cat.toString());
-        String item=sc.next();
-        cat.add(item);
-        categories.add(item);
+        System.out.println("Enter the item category:"+categories.toString());
+        String item = sc.next();
+        ArrayList<String> cat = new ArrayList<>();
+        if (checkIsCategoryFound(item)){
+            cat.add(item);
+        }else {
+            System.out.println("Enter Valid Category");
+             sc.next();
+
+        }
         System.out.println("Enter the item start date in the MM-DD-YYYY format:");
         String start = sc.next();
         System.out.println("Enter the item end date in the MM-DD-YYYY format:");
@@ -105,7 +111,7 @@ public class TodoList{
             System.out.println("Enter the item end date in the MM-DD-YYYY format:");
             end = sc.next();
         }
-        TodoItem i = new TodoItem(title, desc, p, categories, start, end);
+        TodoItem i = new TodoItem(title, desc, p, cat, start, end);
         allItems.add(i);
     }
     
@@ -240,12 +246,66 @@ public class TodoList{
         }
 
     }
-    static void addItemToCategory(String category){
-        cat.add(category);
-
+    static int addItemToCategory(String title){
+        if (searchByTitle(title)==-1){
+            System.out.println("Title Not Found");
+        }else {
+            return searchByTitle(title);
+        }
+        return 0;
     }
-    
-    
+//    static void getFiveNearestBYDate(){
+//       Collections.sort(allItems, new Comparator<TodoItem>() {
+//           @Override
+//           public int compare(TodoItem o1, TodoItem o2) {
+//               return o1.getStartDate().compareTo(o2.getStartDate());
+//           }
+//       });
+//        Collections.reverse(allItems);
+//        System.out.println("The Top 5 Nearest BY Date: ");
+//        for(int i = 0; i < 5; i++)
+//        {
+//            allItems.get(i).showItem();
+//            System.out.println("*******************************");
+//        }
+//        if(allItems.size() == 0)
+//        {
+//            System.out.println("The list is empty");
+//        }
+//
+//
+//    }
+    static Boolean checkIsCategoryFound(String category)
+    {
+        for(int i = 0; i < categories.size(); i++)
+        {
+            if(categories.get(i).equals(category))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    static void searchByCat(String cat)
+    {
+
+        for(int i = 0; i < allItems.size(); i++)
+        {
+            if(allItems.get(i).getCategory().get(0).equals(cat))
+            {
+                allItems.get(i).showItem();
+                System.out.println("*******************************");
+                if(allItems.size() == 0)
+                {
+                    System.out.println("The list is empty");
+                }
+
+
+            }else {
+                System.out.println("There is No Item with this category");
+            }
+        }
+    }
     
     public static void main(String []args)
     {
@@ -257,8 +317,21 @@ public class TodoList{
         /**/
         ArrayList<String> favorites2 = new ArrayList<>();
         favorites2.add("cat1");
-        TodoItem i1 = new TodoItem("item1", "i1 desc", 2, favorites2, "2-2-2022", "6-6-2022");
+        TodoItem i1 = new TodoItem("item1", "i1 desc", 2, favorites2, "2-2-2021", "6-6-2021");
+        TodoItem i2 = new TodoItem("item1", "i1 desc", 2, favorites2, "2-2-2022", "6-6-2022");
+        TodoItem i3 = new TodoItem("item1", "i1 desc", 2, favorites2, "2-2-2023", "6-6-2023");
+        TodoItem i4 = new TodoItem("item1", "i1 desc", 2, favorites2, "3-10-2023", "6-6-2023");
+        TodoItem i5 = new TodoItem("item1", "i1 desc", 2, favorites2, "2-11-2023", "6-6-2023");
         allItems.add(i1);
+        allItems.add(i2);
+        allItems.add(i3);
+        allItems.add(i4);
+        allItems.add(i5);
+
+        categories.add("sport");
+        categories.add("fun");
+        categories.add("study");
+        categories.add("general");
         /**/
         
         while(true)
@@ -272,7 +345,7 @@ public class TodoList{
             {
                 System.exit(0);
             }
-            while(option < 1 || option > 13)
+            while(option < 1 || option > 14)
             {
                 System.out.println("Invalid input, please enter another number");
                 option = s.nextInt();
@@ -346,6 +419,9 @@ public class TodoList{
 
                 // Show top 5 nearest by date
                 case 5:
+
+//                    getFiveNearestBYDate();
+
                     break;
 
                 // Search by title
@@ -386,12 +462,22 @@ public class TodoList{
                     
                 // Add item to a category
                 case 10:
-                    System.out.println("The Category we have");
-                    System.out.println(cat.toString());
+                    System.out.println("Write a Title you want to added to another category");
+                    String title=s.next();
                     System.out.println("Write a category you want to add");
+                    System.out.println("The Category we have");
+                    System.out.println(categories.toString());
+
                     String category=s.next();
-                    addItemToCategory(category);
-                    System.out.println("Category Added Successfully");
+                    int catIndex=addItemToCategory(title);
+                    if (checkIsCategoryFound(category)){
+                        allItems.get(catIndex).addCat(category);
+                        System.out.println("Category Added Successfully");
+
+                    }else {
+                        System.out.println("Enter Valid Category");
+                         s.next();
+                    }
                     break;
                     
                 // Add item to a favorite
@@ -431,7 +517,12 @@ public class TodoList{
                 case 13:
                     getFavorites();
                     break;
-                    
+                case 14:
+                    System.out.println("Enter The Category : "+categories.toString());
+                    String categoryx=s.next();
+                    searchByCat(categoryx);
+
+                    break;
             }
         }
        

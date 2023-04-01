@@ -1,5 +1,7 @@
 package todo;
 import java.util.ArrayList;
+import java.util.Collections;
+
 public class TodoItem{
     
     private String title;
@@ -91,6 +93,10 @@ public class TodoItem{
         System.out.println("Category: " + category);
         System.out.println("Start Date: " + start);
         System.out.println("End Date: " + end);
+    }
+
+    public ArrayList getCategory() {
+        return category;
     }
 
 }
