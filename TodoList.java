@@ -1,15 +1,132 @@
 package todo;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 public class TodoList{
     static ArrayList<TodoItem> allItems = new ArrayList<>();
     static ArrayList<TodoItem> favorites = new ArrayList<>();
+    static ArrayList<String> categories = new ArrayList<>();
+    
     static boolean found;
     static int option;
     static String title;
     
+    static void categoryInit()
+    {
+        categories.add("Activities");
+        categories.add("Sports");
+        categories.add("Art");
+        categories.add("Fun");
+        categories.add("Travel");
+        categories.add("Study");
+        categories.add("Generic");
+    }
+    
+    static void fillAllItems(String line)
+    {
+        int comIdx, newPriority;
+        boolean newFav;
+        String newTitle, newDesc, newStart, newEnd;
+        ArrayList <String> newCat = new ArrayList<>();
+        
+        
+        if(!line.contains(","))
+        {
+            return;
+        }
+        // title
+        comIdx = line.indexOf(",");
+        newTitle = line.substring(0, comIdx);
+        line = line.substring(comIdx + 1);
+
+        // description
+        comIdx = line.indexOf(",");
+        newDesc = line.substring(0, comIdx);
+        line = line.substring(comIdx + 1);
+
+        // priority
+        comIdx = line.indexOf(",");
+        newPriority = Integer.parseInt(line.substring(0, comIdx));
+        line = line.substring(comIdx + 1);
+
+        // category
+        line = line.substring(1); //removing [
+        comIdx = line.indexOf(",");
+        String last = "";
+        while(line.contains("]"))
+        {
+            newCat.add(line.substring(0, comIdx));
+            line = line.substring(comIdx + 1);
+            comIdx = line.indexOf(",");
+        }
+        last = newCat.get(newCat.size()-1);
+        newCat.set(newCat.size()-1, last.substring(0, last.length()-1));
+
+        // start date
+        comIdx = line.indexOf(",");
+        newStart = line.substring(0, comIdx);
+        line = line.substring(comIdx + 1);
+
+        // end date
+        comIdx = line.indexOf(",");
+        newEnd = line.substring(0, comIdx);
+        line = line.substring(comIdx + 1);
+
+        // favorite
+        if(line.equals("true"))
+        {
+            newFav = true;
+        }
+        else
+        {
+            newFav = false;
+        }
+       
+       
+        
+        TodoItem newItem = new TodoItem(newTitle, newDesc, newPriority, newCat, newStart, newEnd, newFav);
+        allItems.add(newItem);
+        
+    }
+    
+    static void writeInFile()
+    {
+        try (PrintWriter p = new PrintWriter(new FileOutputStream("database.txt", false))) 
+        {
+            p.println("My Todo List:");
+            for(int i = 0; i < allItems.size(); i++)
+            {
+                p.print(allItems.get(i).getTitle() + ",");
+                p.print(allItems.get(i).getDesc() + ",");
+                p.print(allItems.get(i).getPriority() + ",[");
+                int size = allItems.get(i).getCat().size();
+                for(int j = 0; j < size; j++)
+                {
+                    p.print(allItems.get(i).getCat().get(j));
+                    if(j != allItems.get(i).getCat().size()-1)
+                    {
+                        p.print(",");
+                    }
+                    else
+                    {
+                        p.print("],");
+                    }
+                }
+                p.print(allItems.get(i).getStartDate() + ",");
+                p.print(allItems.get(i).getEndDate() + ",");
+                p.println(allItems.get(i).getFavorite());
+            }
+        } catch (FileNotFoundException e1) 
+        {
+            e1.printStackTrace();
+        }
+    }
+    
     static void fillFavArray()
     {
+        favorites.remove(favorites);
         for(int i = 0; i < allItems.size(); i++)
         {
             if(allItems.get(i).getFavorite()== true)
@@ -42,13 +159,18 @@ public class TodoList{
         // Year
         String comp1 = st.substring(6);
         String comp2 = end.substring(6);
-        if(Integer.parseInt(comp1) > Integer.parseInt(comp2))
+        if(Integer.valueOf(comp1) > Integer.valueOf(comp2))
         {
             return false;
+        }
+        else if(Integer.valueOf(comp1) < Integer.valueOf(comp2))
+        {
+            return true;
         }
         // Month
         comp1 = st.substring(3, 5);
         comp2 = end.substring(3, 5);
+        System.out.print("");
         if(comp1.charAt(0) == '0')
         {
             comp1 = comp1.charAt(1)+"";
@@ -60,6 +182,10 @@ public class TodoList{
         if(Integer.parseInt(comp1) > Integer.parseInt(comp2))
         {
             return false;
+        }
+        if(Integer.parseInt(comp1) < Integer.parseInt(comp2))
+        {
+            return true;
         }
         // Day
         comp1 = st.substring(0, 2);
@@ -72,10 +198,12 @@ public class TodoList{
         {
             comp2 = comp2.charAt(1)+"";
         }
-        if(Integer.parseInt(comp1) > Integer.parseInt(comp2))
+        if(Integer.valueOf(comp1) > Integer.valueOf(comp2))
         {
+            System.out.print("3");
             return false;
         }
+        System.out.println("4");
         return true;
     }
     
@@ -83,17 +211,29 @@ public class TodoList{
     {
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter the item title:");
-        String title = sc.next();
+        title = sc.nextLine();
+        while(searchByTitle(title) != -1)
+        {
+            System.out.println("Item title already exists, please enter another title");
+            title = sc.nextLine();
+        }
         System.out.println("Enter the item description:");
-        String desc = sc.next();
+        String desc = sc.nextLine();
         System.out.println("Enter the item priority:");
         int p = sc.nextInt();
         System.out.println("Enter the item category:");
         ArrayList<String> cat = new ArrayList<>();
-        cat.add(sc.next());
-        System.out.println("Enter the item start date in the MM-DD-YYYY format:");
+        String c = sc.next();
+        while(categoryIsFound(c) == -1)
+        {
+            System.out.println("Category doesn't exist!!");
+            System.out.println("Please enter one of these categories: " + categories.toString());
+            c = sc.next();
+        }
+        cat.add(categories.get(categoryIsFound(c)));
+        System.out.println("Enter the item start date in the DD-MM-YYYY format:");
         String start = sc.next();
-        System.out.println("Enter the item end date in the MM-DD-YYYY format:");
+        System.out.println("Enter the item end date in the DD-MM-YYYY format:");
         String end = sc.next();
         while(!checkTimeInterval(start, end))
         {
@@ -103,6 +243,64 @@ public class TodoList{
         }
         TodoItem i = new TodoItem(title, desc, p, cat, start, end);
         allItems.add(i);
+    }
+    
+    static void updateItem()
+    {
+        Scanner s = new Scanner(System.in);
+        System.out.println("Enter the item title");
+        title = s.nextLine();
+        System.out.println("Which field do you want to update?");
+        String field = s.next();
+        System.out.println("Enter the new value");
+        String newValue = s.nextLine();
+        int idx = searchByTitle(title);
+        boolean updated;
+        if(idx != -1)
+        {
+            System.out.println("Item before update:");
+            allItems.get(idx).showItem();
+            try 
+            {
+                updated = allItems.get(idx).updateItem(field, newValue);
+                if(updated)
+                {
+                    System.out.println("Item after update:");
+                    allItems.get(idx).showItem();
+                    fillFavArray();
+                }
+                else
+                {
+                    System.out.println("No such field!!");
+                }
+
+            } catch (ItemNotFound e) {
+                System.out.println("Item doesn't exist in favorites list");
+            }
+        }
+        else
+        {
+            System.out.println("There is no item with this title!!");
+        }
+                
+    }
+    
+    static boolean deleteItem(String t)
+    {
+        int ind = searchByTitle(t);
+        if(ind != -1)
+        {
+            // remove from favorites if found 
+            try
+            {
+                removeFromFav(t);
+            }
+            catch(ItemNotFound e)
+            {}
+            allItems.remove(ind);
+            return true;
+        }
+        return false;
     }
     
     static void showAllItems()
@@ -123,7 +321,7 @@ public class TodoList{
     {
         for(int i = 0; i < allItems.size(); i++)
         {
-            if(allItems.get(i).getTitle().equals(t))
+            if(allItems.get(i).getTitle().equalsIgnoreCase(t))
             {
                 return i;
             }
@@ -183,7 +381,7 @@ public class TodoList{
     {
         for(int i = 0; i < favorites.size(); i++)
         {
-            if(favorites.get(i).getTitle().equals(title))
+            if(favorites.get(i).getTitle().equalsIgnoreCase(t))
             {
                 throw new ItemAlreadyExists();
             }
@@ -191,6 +389,7 @@ public class TodoList{
         int idx = searchByTitle(t);
         if(idx != -1)
         {
+            allItems.get(idx).setFavorite(true);
             favorites.add(allItems.get(idx));
         }
         else
@@ -200,9 +399,24 @@ public class TodoList{
         
     }
     
+    static void removeFromFav(String t) throws ItemNotFound
+    {
+        int idx = searchByTitle(t);
+        for(int i = 0; i < favorites.size(); i++)
+        {
+            if(favorites.get(i).getTitle().equalsIgnoreCase(t))
+            {
+                favorites.remove(i);
+                allItems.get(idx).setFavorite(false);
+                return;
+            }
+        }
+        throw new ItemNotFound();
+    }
+    
     static void getFavorites()
     {
-        System.out.println("My favorite list:");
+        System.out.println("My favorites list:");
         for(int i = 0; i < favorites.size(); i++)
         {
             favorites.get(i).showItem();
@@ -214,34 +428,71 @@ public class TodoList{
         }
     }
     
-    static void removeFromFav(String title) throws ItemNotFound
+    static int categoryIsFound(String category)
     {
-        for(int i = 0; i < favorites.size(); i++)
+        for(int i = 0; i < categories.size(); i++)
         {
-            if(favorites.get(i).getTitle().equals(title))
+            if(categories.get(i).equalsIgnoreCase(category))
             {
-                favorites.remove(i);
-                return;
+                return i;
             }
         }
-        throw new ItemNotFound();
+        return -1;
+    }
+    
+    static void addItemToCategory(String t, String category)
+    {
+        int index = searchByTitle(t);
+        if (index == -1)
+        {
+            System.out.println("Item doesn't exist");
+            return;
+        }
+        if(allItems.get(index).getCat().contains(category))
+        {
+            System.out.println("Item is already added to this category!!");
+            return;
+
+        }
+        allItems.get(index).addCat(category);
+        // Update favorites
+        fillFavArray();
+        System.out.println("Category Added Successfully");
     }
     
     
-    
-    public static void main(String []args)
+    public static void main(String []args) throws FileNotFoundException, IOException
     {
         Scanner s = new Scanner(System.in);
+        categoryInit();
+        try
+        {
+            FileInputStream fstream = new FileInputStream("database.txt");
+            BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
+
+            String strLine;
+            // Skip the first line
+            br.readLine(); 
+            //Read File Line By Line
+            while ((strLine = br.readLine()) != null)   {
+                // fill in allItems arraylist
+                fillAllItems(strLine);
+                
+            }
+            
+            br.close();
+        }
+        catch(FileNotFoundException e)
+        {
+            System.out.println("File doesn't exist");
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
         
         // Filling favorites list
         fillFavArray();
-        
-        /**/
-        ArrayList<String> favorites2 = new ArrayList<>();
-        favorites2.add("cat1");
-        TodoItem i1 = new TodoItem("item1", "i1 desc", 2, favorites2, "2-2-2022", "6-6-2022");
-        allItems.add(i1);
-        /**/
         
         while(true)
         {
@@ -252,7 +503,7 @@ public class TodoList{
             option = s.nextInt();
             if(option == -1)
             {
-                System.exit(0);
+               break;
             }
             while(option < 1 || option > 13)
             {
@@ -270,45 +521,24 @@ public class TodoList{
 
                 // Update item
                 case 2:
-                    System.out.println("Enter the item title");
-                    title = s.next();
-                    System.out.println("Which field do you want to update?");
-                    String field = s.next();
-                    System.out.println("Enter the new value");
-                    String newValue = s.next();
-                    int idx = searchByTitle(title);
-                    boolean updated;
-                    if(idx != -1)
-                    {
-                        System.out.println("Item before update:");
-                        allItems.get(idx).showItem();
-                        try 
-                        {
-                            updated = allItems.get(idx).updateItem(field, newValue);
-                            if(updated)
-                            {
-                                System.out.println("Item after update:");
-                                allItems.get(idx).showItem();
-                            }
-                            else
-                            {
-                                System.out.println("No such field!!");
-                            }
-                            
-                        } catch (ItemNotFound e) {
-                            System.out.println("Item doesn't exist in favorites list");
-                        }
-                    }
-                    else
-                    {
-                        System.out.println("There is no item with this title!!");
-                    }
+                    updateItem();
                     break;
 
                 // Delete item
                 case 3:
+                    System.out.println("Enter the item title");
+                    s.nextLine();
+                    title = s.nextLine();
+                    if(deleteItem(title))
+                    {
+                        System.out.println("Item deleted successfully");
+                    }
+                    else
+                    {
+                        System.out.println("Item doesn't exist!!");
+                    }
                     break;
-
+                    
                 // Show all items
                 case 4:
                     showAllItems();
@@ -356,12 +586,26 @@ public class TodoList{
                     
                 // Add item to a category
                 case 10:
+                    System.out.println("Enter the title of the item");
+                    s.nextLine();
+                    String title = s.nextLine();
+                    System.out.println("Choose the item category: " + categories.toString());
+                    String category = s.next();
+                    while(categoryIsFound(category) == -1)
+                    { 
+                        System.out.println("Category doesn't exist!!");
+                        System.out.println("Please enter one of these categories: " + categories.toString());
+                        category = s.next();
+                    }
+                    addItemToCategory(title, categories.get(categoryIsFound(category)));
+                    
                     break;
                     
                 // Add item to a favorite
                 case 11:
                     System.out.println("Enter the title of the item");
-                    title = s.next();
+                    s.nextLine();
+                    title = s.nextLine();
                     try 
                     {
                         addToFav(title);
@@ -379,7 +623,8 @@ public class TodoList{
                 // remove an item from favorites list
                 case 12:
                     System.out.println("Enter the title of the item");
-                    title = s.next();
+                    s.nextLine();
+                    title = s.nextLine();
                     try 
                     {
                         removeFromFav(title);
@@ -398,7 +643,9 @@ public class TodoList{
                     
             }
         }
-       
+        
+        // Stroring data
+        writeInFile();
         
     }
 }
