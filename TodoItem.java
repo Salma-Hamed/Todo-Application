@@ -21,6 +21,12 @@ public class TodoItem{
         end =  e;
         favorite = false;
     }
+    
+    public TodoItem(String t, String desc, int p, ArrayList cat, String st, String e, boolean f)
+    {
+        this(t, desc, p, cat, st, e);
+        favorite = f;
+    }
 
     public boolean updateItem(String field, String newValue) throws ItemNotFound
     {
@@ -62,7 +68,14 @@ public class TodoItem{
     {
         return title;
     }
-    
+    public String getDesc()
+    {
+        return description;
+    }
+    public ArrayList getCat()
+    {
+        return category;
+    }
     public String getStartDate()
     {
         return start;
@@ -91,6 +104,15 @@ public class TodoItem{
         System.out.println("Category: " + category);
         System.out.println("Start Date: " + start);
         System.out.println("End Date: " + end);
+        System.out.print("Favorite: ");
+        if(favorite == true)
+        {
+            System.out.println("Yes");
+        }
+        else
+        {
+            System.out.println("No");
+        }
     }
 
 }
