@@ -331,6 +331,9 @@ public class TodoList{
         categories.add("sport");
         categories.add("fun");
         categories.add("study");
+        categories.add("activities");
+        categories.add("art");
+        categories.add("travel");
         categories.add("general");
         /**/
         
